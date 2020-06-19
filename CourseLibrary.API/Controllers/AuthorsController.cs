@@ -6,10 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CourseLibrary.Application.Commands;
 using CourseLibrary.Application.Entities;
 using CourseLibrary.Application.Queries;
-using CourseLibrary.Application.ResourceParameters;
-using CourseLibrary.Application.Services;
+using CourseLibrary.Application.Queries.Authors;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -33,24 +33,24 @@ namespace CourseLibrary.API.Controllers
 
         [HttpGet()]
         [HttpHead]
-        public ActionResult<IEnumerable<AuthorDto>> GetAuthors(
-            [FromQuery] GetAuthorsQuery getAuthorsQuery)
+        public async Task<ActionResult<IEnumerable<AuthorView>>> GetAuthors([FromQuery] GetAuthorsQuery getAuthorsQuery)
         {
-            var authorsFromRepo = _queryService.GetAuthors(getAuthorsQuery);
-            return Ok(_mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo));
+            throw new NotImplementedException();
+            
+            // return Ok(await _queryService.GetAuthors(getAuthorsQuery));
         }
 
         [HttpGet("{authorId}", Name ="GetAuthor")]
-        public IActionResult GetAuthor(Guid authorId)
+        public async Task<IActionResult> GetAuthor(Guid authorId)
         {
-            var authorFromRepo = _queryService.GetAuthor(authorId);
+            var authorFromRepo = await _queryService.GetAuthor(authorId);
 
             if (authorFromRepo == null)
             {
                 return NotFound();
             }
              
-            return Ok(_mapper.Map<AuthorDto>(authorFromRepo));
+            return Ok(authorFromRepo);
         }
 
         [HttpPost]
@@ -74,16 +74,16 @@ namespace CourseLibrary.API.Controllers
         }
 
         [HttpDelete("{authorId}")]
-        public ActionResult DeleteAuthor(Guid authorId)
+        public async Task<ActionResult> DeleteAuthor(Guid authorId)
         {
-            var authorFromRepo = _queryService.GetAuthor(authorId);
+            var authorFromRepo = await _queryService.GetAuthor(authorId);
 
             if (authorFromRepo == null)
             {
                 return NotFound();
             }
 
-            _courseLibraryRepository.DeleteAuthor(authorFromRepo);
+            //_courseLibraryRepository.DeleteAuthor(authorFromRepo);
 
             _courseLibraryRepository.Save();
 

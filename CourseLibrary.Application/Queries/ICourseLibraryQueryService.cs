@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using CourseLibrary.Application.Entities;
-using CourseLibrary.Application.ResourceParameters;
+using System.Threading.Tasks;
+using CourseLibrary.Application.Queries.Authors;
+using CourseLibrary.Application.Queries.Courses;
 
 namespace CourseLibrary.Application.Queries
 {
     public interface ICourseLibraryQueryService
     {
-        Course[] GetCourses(Guid authorId);
-        Course GetCourse(GetCourseQuery query);
-        Author[] GetAuthors(GetAuthorsQuery getAuthorsQuery);
-        Author GetAuthor(Guid authorId);
-        Author[] GetAuthors(IEnumerable<Guid> authorIds);
-        bool AuthorExists(Guid authorId);
+        
+        Task<AuthorView> GetAuthor(Guid authorId);
+        
+        Task<AuthorView[]> GetAuthors(IEnumerable<Guid> authorIds);
+        
+        Task<bool> AuthorExists(Guid authorId);
     }
 }

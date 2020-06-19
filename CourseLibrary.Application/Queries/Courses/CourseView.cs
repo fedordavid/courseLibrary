@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Linq;
-using System.Threading.Tasks;
 
-namespace CourseLibrary.API.Models
+namespace CourseLibrary.Application.Queries.Courses
 {
-    public class CourseDto
+    public class CourseView
     {
         public Guid Id { get; set; }
         
@@ -14,5 +12,10 @@ namespace CourseLibrary.API.Models
         public string Description { get; set; }
 
         public Guid AuthorId { get; set; }
+    }
+
+    public interface ICourseViews
+    {
+        IQueryable<CourseView> Courses { get; }
     }
 }

@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CourseLibrary.Application.Commands;
 using CourseLibrary.Application.Entities;
 using CourseLibrary.Application.Queries;
-using CourseLibrary.Application.Services;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -31,7 +31,7 @@ namespace CourseLibrary.API.Controllers
         }
 
         [HttpGet("({ids})", Name ="GetAuthorCollection")]
-        public IActionResult GetAuthorCollection(
+        public async Task<IActionResult> GetAuthorCollection(
         [FromRoute]
         [ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
@@ -40,21 +40,21 @@ namespace CourseLibrary.API.Controllers
                 return BadRequest();
             }
 
-            var authorEntities = _queryService.GetAuthors(ids);
+            var authorIds = ids as Guid[] ?? ids.ToArray();
+            
+            var authors = await _queryService.GetAuthors(authorIds);
 
-            if (ids.Count() != authorEntities.Count())
+            if (authorIds.Count() != authors.Count())
             {
                 return NotFound();
             }
 
-            var authorsToReturn = _mapper.Map<IEnumerable<AuthorDto>>(authorEntities);
-
-            return Ok(authorsToReturn);
+            return Ok(authors);
         }
 
 
         [HttpPost]
-        public ActionResult<IEnumerable<AuthorDto>> CreateAuthorCollection(
+        public async Task<ActionResult<IEnumerable<AuthorDto>>> CreateAuthorCollection(
             IEnumerable<AuthorForCreationDto> authorCollection)
         {
             var authorEntities = _mapper.Map<IEnumerable<Author>>(authorCollection);

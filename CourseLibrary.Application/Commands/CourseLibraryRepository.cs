@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using CourseLibrary.Application.Entities;
-using CourseLibrary.Application.ResourceParameters;
-using CourseLibrary.Application.Services;
+using CourseLibrary.Application.Queries;
+using CourseLibrary.Application.Queries.Authors;
 
 namespace CourseLibrary.Application.Commands
 {

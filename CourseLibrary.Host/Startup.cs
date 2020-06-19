@@ -1,10 +1,12 @@
 using System;
 using AutoMapper;
+using CourseLibrary.Application;
 using CourseLibrary.Application.Commands;
 using CourseLibrary.Application.Queries;
-using CourseLibrary.Application.Services;
+using CourseLibrary.Application.Queries.Authors;
+using CourseLibrary.Application.Queries.Courses;
 using CourseLibrary.Persistence.DbContexts;
-using CourseLibrary.Persistence.Repositories;
+using CourseLibrary.Persistence.Queries;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -88,14 +90,16 @@ namespace CourseLibrary.Host
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
-            services.AddScoped<ICourseLibraryQueryRepository, CourseLibraryQueryRepository>();
-            services.AddScoped<ICourseLibraryQueryService, CourseLibraryQueryService>();
-
+            services.AddScoped<ICourseViews, CourseLibraryQueryRepository>();
+            services.AddScoped<IAuthorViews, CourseLibraryQueryRepository>();
+            
             services.AddDbContext<CourseLibraryContext>(options =>
             {
                 options.UseSqlServer(
                     @"Server=(localdb)\mssqllocaldb;Database=CourseLibraryDB;Trusted_Connection=True;");
             }); 
+            
+            ServiceConfigurator.ConfigureServices(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
