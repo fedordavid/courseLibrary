@@ -1,77 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CourseLibrary.Application.Entities;
-using CourseLibrary.Application.ResourceParameters;
+using System.Threading.Tasks;
+using CourseLibrary.Application.Queries.Authors;
+using Microsoft.EntityFrameworkCore;
 
 namespace CourseLibrary.Application.Queries
 {
     public class CourseLibraryQueryService : ICourseLibraryQueryService
     {
-        private readonly ICourseLibraryQueryRepository _repository;
+        private readonly IAuthorViews _authors;
 
-        public CourseLibraryQueryService(ICourseLibraryQueryRepository repository )
+        public CourseLibraryQueryService(IAuthorViews authors)
         {
-            _repository = repository;
+            _authors = authors;
         }
 
-        public Course GetCourse(GetCourseQuery query)
+        public Task<bool> AuthorExists(Guid authorId)
         {
-            return _repository.Courses
-                .FirstOrDefault(c => c.AuthorId == query.AuthorId && c.Id == query.CourseId);
+            return _authors.Authors.AnyAsync(a => a.Id == authorId);
         }
 
-        public Course[] GetCourses(Guid authorId)
+        public Task<AuthorView> GetAuthor(Guid authorId)
         {
-            return _repository.Courses
-                .Where(c => c.AuthorId == authorId)
-                .OrderBy(c => c.Title)
-                .ToArray();
+            return _authors.Authors.FirstOrDefaultAsync(a => a.Id == authorId);
         }
 
-        public bool AuthorExists(Guid authorId)
+        public Task<AuthorView[]> GetAuthors(IEnumerable<Guid> authorIds)
         {
-            return _repository.Authors.Any(a => a.Id == authorId);
-        }
-
-        public Author GetAuthor(Guid authorId)
-        {
-            return _repository.Authors.FirstOrDefault(a => a.Id == authorId);
-        }
-
-        public Author[] GetAuthors(GetAuthorsQuery getAuthorsQuery = null)
-        {
-            var queryable = _repository.Authors;
-
-            if (getAuthorsQuery != null && !string.IsNullOrWhiteSpace(getAuthorsQuery.MainCategory))
-            {
-                queryable = queryable.Where(a => a.MainCategory == getAuthorsQuery.MainCategory);
-            }
-
-            if (getAuthorsQuery != null && !string.IsNullOrWhiteSpace(getAuthorsQuery.SearchQuery))
-            {
-                queryable = queryable.Where(a => a.MainCategory.Contains(getAuthorsQuery.SearchQuery)
-                    || a.FirstName.Contains(getAuthorsQuery.SearchQuery)
-                    || a.LastName.Contains(getAuthorsQuery.SearchQuery));
-            }
-
-            return queryable.ToResult();
-        }
-
-        public Author[] GetAuthors(IEnumerable<Guid> authorIds)
-        {
-            return _repository.Authors.Where(a => authorIds.Contains(a.Id)).ToResult();
+            return _authors.Authors.Where(a => authorIds.Contains(a.Id)).ToResult();
         }
     }
     
     public static class AuthorQueryableExtensions
     {
-        public static Author[] ToResult(this IQueryable<Author> authors)
+        public static Task<AuthorView[]> ToResult(this IQueryable<AuthorView> authors)
         {
             return authors
-                .OrderBy(a => a.FirstName)
-                .ThenBy(a => a.LastName)
-                .ToArray();
+                .OrderBy(a => a.Name)
+                .ToArrayAsync();
         }
     }
 }
