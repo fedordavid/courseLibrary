@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using CourseLibrary.API.Helpers;
 using CourseLibrary.API.Models;
-using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CourseLibrary.Application.Entities;
+using CourseLibrary.Application.Queries;
+using CourseLibrary.Application.Services;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -16,14 +18,16 @@ namespace CourseLibrary.API.Controllers
     {
         private readonly ICourseLibraryRepository _courseLibraryRepository;
         private readonly IMapper _mapper;
+        private ICourseLibraryQueryService _queryService;
 
         public AuthorCollectionsController(ICourseLibraryRepository courseLibraryRepository,
-            IMapper mapper)
+            IMapper mapper, ICourseLibraryQueryService queryService)
         {
             _courseLibraryRepository = courseLibraryRepository ??
                 throw new ArgumentNullException(nameof(courseLibraryRepository));
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
+            _queryService = queryService;
         }
 
         [HttpGet("({ids})", Name ="GetAuthorCollection")]
@@ -36,7 +40,7 @@ namespace CourseLibrary.API.Controllers
                 return BadRequest();
             }
 
-            var authorEntities = _courseLibraryRepository.GetAuthors(ids);
+            var authorEntities = _queryService.GetAuthors(ids);
 
             if (ids.Count() != authorEntities.Count())
             {
@@ -53,7 +57,7 @@ namespace CourseLibrary.API.Controllers
         public ActionResult<IEnumerable<AuthorDto>> CreateAuthorCollection(
             IEnumerable<AuthorForCreationDto> authorCollection)
         {
-            var authorEntities = _mapper.Map<IEnumerable<Entities.Author>>(authorCollection);
+            var authorEntities = _mapper.Map<IEnumerable<Author>>(authorCollection);
             foreach (var author in authorEntities)
             {
                 _courseLibraryRepository.AddAuthor(author);
