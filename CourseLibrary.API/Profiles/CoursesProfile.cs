@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CourseLibrary.Application.Entities;
 
 namespace CourseLibrary.API.Profiles
 {
@@ -10,10 +11,10 @@ namespace CourseLibrary.API.Profiles
     {
         public CoursesProfile()
         {
-            CreateMap<Entities.Course, Models.CourseDto>();
-            CreateMap<Models.CourseForCreationDto, Entities.Course>();
-            CreateMap<Models.CourseForUpdateDto, Entities.Course>();
-            CreateMap<Entities.Course, Models.CourseForUpdateDto>();
+            CreateMap<Course, Models.CourseDto>();
+            CreateMap<Models.CourseForCreationDto, Course>();
+            CreateMap<Models.CourseForUpdateDto, Course>();
+            CreateMap<Course, Models.CourseForUpdateDto>();
         }
     }
 }

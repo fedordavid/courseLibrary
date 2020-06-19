@@ -1,6 +1,10 @@
+using System;
 using AutoMapper;
-using CourseLibrary.API.DbContexts;
-using CourseLibrary.API.Services;
+using CourseLibrary.Application.Commands;
+using CourseLibrary.Application.Queries;
+using CourseLibrary.Application.Services;
+using CourseLibrary.Persistence.DbContexts;
+using CourseLibrary.Persistence.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -11,9 +15,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
-using System;
 
-namespace CourseLibrary.API
+namespace CourseLibrary.Host
 {
     public class Startup
     {
@@ -85,6 +88,8 @@ namespace CourseLibrary.API
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
             services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
+            services.AddScoped<ICourseLibraryQueryRepository, CourseLibraryQueryRepository>();
+            services.AddScoped<ICourseLibraryQueryService, CourseLibraryQueryService>();
 
             services.AddDbContext<CourseLibraryContext>(options =>
             {

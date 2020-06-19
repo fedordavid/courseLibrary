@@ -1,16 +1,14 @@
-using CourseLibrary.API.DbContexts;
+using System;
+using CourseLibrary.Persistence.DbContexts;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
 
-namespace CourseLibrary.API
+namespace CourseLibrary.Host
 {
     public class Program
     {
-
         public static void Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
@@ -23,8 +21,8 @@ namespace CourseLibrary.API
                     var context = scope.ServiceProvider.GetService<CourseLibraryContext>();
                     // for demo purposes, delete the database & migrate on startup so 
                     // we can start with a clean slate
-                    context.Database.EnsureDeleted();
-                    context.Database.Migrate();
+                    // context.Database.EnsureDeleted();
+                    // context.Database.Migrate();
                 }
                 catch (Exception ex)
                 {
@@ -39,7 +37,7 @@ namespace CourseLibrary.API
 
         
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+            Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
