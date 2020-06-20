@@ -13,6 +13,6 @@ namespace CourseLibrary.Application.Queries.Authors
             _authors = authors;
         }
 
-        public Task<AuthorView[]> Execute(GetAuthorsQuery query) => GetAuthorsQuery.Apply(query, _authors.Authors).ToResult();
+        public Task<AuthorView[]> Execute(GetAuthorsQuery query) => query.ApplyTo(_authors.Authors).ToResult();
     }
 }

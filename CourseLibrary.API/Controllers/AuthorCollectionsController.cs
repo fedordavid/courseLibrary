@@ -18,7 +18,7 @@ namespace CourseLibrary.API.Controllers
     {
         private readonly ICourseLibraryRepository _courseLibraryRepository;
         private readonly IMapper _mapper;
-        private ICourseLibraryQueryService _queryService;
+        private readonly ICourseLibraryQueryService _queryService;
 
         public AuthorCollectionsController(ICourseLibraryRepository courseLibraryRepository,
             IMapper mapper, ICourseLibraryQueryService queryService)

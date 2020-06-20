@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CourseLibrary.Application.Commands;
 using CourseLibrary.Application.Entities;
@@ -19,52 +18,45 @@ namespace CourseLibrary.API.Controllers
 {
     [ApiController]
     [Route("api/authors/{authorId}/courses")]
-    public class CoursesController : ControllerBase
+    public class CoursesController : CqrsController
     {
         private readonly ICourseLibraryRepository _courseLibraryRepository;
         private readonly ICourseLibraryQueryService _queryService;
         private readonly IMapper _mapper;
-        private readonly QueryBus _queryBus;
 
         public CoursesController(ICourseLibraryRepository courseLibraryRepository,
             IMapper mapper, ICourseLibraryQueryService queryService, QueryBus queryBus)
+            : base(queryBus)
         {
-            _courseLibraryRepository = courseLibraryRepository ??
-                throw new ArgumentNullException(nameof(courseLibraryRepository));
-            _mapper = mapper ??
-                throw new ArgumentNullException(nameof(mapper));
+            _courseLibraryRepository = courseLibraryRepository;
+            _mapper = mapper;
             _queryService = queryService;
-            _queryBus = queryBus;
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CourseView>>> GetCoursesForAuthor(Guid authorId)
+        public async Task<ActionResult<CourseView[]>> GetCoursesForAuthor(Guid authorId)
         {
             if (!await _queryService.AuthorExists(authorId))
             {
                 return NotFound();
             }
 
-            var result = await _queryBus.Execute<GetCoursesQuery, QueryResult<CourseView>>(new GetCoursesQuery(authorId));
-            
-            return Ok(await result.All);
+            return await ExecutePagedQuery(new GetCoursesQuery(authorId));
         }
         
         [HttpGet("paged")]
-        public async Task<ActionResult<IEnumerable<CourseView>>> GetCoursesForAuthorPaged(Guid authorId, int pageSize, int page)
+        public async Task<ActionResult<CourseView[]>> GetCoursesForAuthorPaged(Guid authorId, int pageSize, int page)
         {
             if (!await _queryService.AuthorExists(authorId))
             {
                 return NotFound();
             }
 
-            var result = await _queryBus.Execute<GetCoursesQuery, QueryResult<CourseView>>(new GetCoursesQuery(authorId));
-            
-            return Ok(await result.Paged(pageSize, page));
+            return await ExecutePagedQuery(new GetCoursesQuery(authorId), pageSize, page);
         }
 
         [HttpGet("{courseId}", Name = "GetCourseForAuthor")]
-        public async Task<ActionResult<CourseView>> GetCourseForAuthor(Guid authorId, Guid courseId)
+        public Task<ActionResult<CourseView>> GetCourseForAuthor(Guid authorId, Guid courseId)
         {
             throw new NotImplementedException();
             
@@ -87,6 +79,8 @@ namespace CourseLibrary.API.Controllers
         public async Task<ActionResult<CourseDto>> CreateCourseForAuthor(
             Guid authorId, CourseForCreationDto course)
         {
+            throw new NotImplementedException();
+            
             if (!await _queryService.AuthorExists(authorId))
             {
                 return NotFound();
@@ -103,7 +97,7 @@ namespace CourseLibrary.API.Controllers
         }
 
         [HttpPut("{courseId}")]
-        public async Task<IActionResult> UpdateCourseForAuthor(Guid authorId, 
+        public Task<IActionResult> UpdateCourseForAuthor(Guid authorId, 
             Guid courseId, 
             CourseForUpdateDto course)
         {
@@ -145,7 +139,7 @@ namespace CourseLibrary.API.Controllers
         }
 
         [HttpPatch("{courseId}")]
-        public async Task<ActionResult> PartiallyUpdateCourseForAuthor(Guid authorId, 
+        public Task<ActionResult> PartiallyUpdateCourseForAuthor(Guid authorId, 
             Guid courseId,
             JsonPatchDocument<CourseForUpdateDto> patchDocument)
         {
@@ -201,7 +195,7 @@ namespace CourseLibrary.API.Controllers
         }
 
         [HttpDelete("{courseId}")]
-        public async Task<ActionResult> DeleteCourseForAuthor(Guid authorId, Guid courseId)
+        public Task<ActionResult> DeleteCourseForAuthor(Guid authorId, Guid courseId)
         {
             throw new NotImplementedException();
             //

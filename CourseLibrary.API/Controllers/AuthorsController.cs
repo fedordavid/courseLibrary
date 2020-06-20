@@ -2,7 +2,6 @@
 using CourseLibrary.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CourseLibrary.Application.Commands;
 using CourseLibrary.Application.Entities;
@@ -14,30 +13,27 @@ namespace CourseLibrary.API.Controllers
 {
     [ApiController]
     [Route("api/authors")]
-    public class AuthorsController : ControllerBase
+    public class AuthorsController : CqrsController
     {
         private readonly ICourseLibraryRepository _courseLibraryRepository;
         private readonly IMapper _mapper;
         
-        private readonly QueryBus _queryBus;
         private readonly ICourseLibraryQueryService _queryService;
 
         public AuthorsController(ICourseLibraryRepository courseLibraryRepository,
             IMapper mapper, ICourseLibraryQueryService queryService, QueryBus queryBus)
+        : base(queryBus)
         {
-            _courseLibraryRepository = courseLibraryRepository ??
-                throw new ArgumentNullException(nameof(courseLibraryRepository));
-            _mapper = mapper ??
-                throw new ArgumentNullException(nameof(mapper));
+            _courseLibraryRepository = courseLibraryRepository;
+            _mapper = mapper;
             _queryService = queryService;
-            _queryBus = queryBus;
         }
 
         [HttpGet]
         [HttpHead]
-        public async Task<ActionResult<IEnumerable<AuthorView>>> GetAuthors(string searchQuery, string mainCategory)
+        public Task<ActionResult<AuthorView[]>> GetAuthors(string searchQuery, string mainCategory)
         {
-            return Ok(await _queryBus.Execute<GetAuthorsQuery, AuthorView[]>(new GetAuthorsQuery(searchQuery, mainCategory)));
+            return ExecuteQuery(new GetAuthorsQuery(searchQuery, mainCategory));
         }
 
         [HttpGet("{authorId}", Name ="GetAuthor")]
