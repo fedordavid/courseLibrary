@@ -9,5 +9,9 @@
       <ProjectReference Include="..\CourseLibrary.Persistence\CourseLibrary.Persistence.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
+    </ItemGroup>
+
 
 </Project>

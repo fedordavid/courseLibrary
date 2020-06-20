@@ -1,3 +1,4 @@
+using CourseLibrary.Application.Commands;
 using CourseLibrary.Application.Queries;
 using CourseLibrary.Application.Queries.Authors;
 using CourseLibrary.Application.Queries.Core;
@@ -6,9 +7,20 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CourseLibrary.Application
 {
-    public static class ServiceConfigurator
+    public static class ApplicationConfiguration
     {
-        public static void ConfigureServices(IServiceCollection services)
+        public static void Configure(IServiceCollection services)
+        {
+            services.AddCommands();
+            services.AddQueries();
+        }
+
+        private static void AddCommands(this IServiceCollection services)
+        {
+            services.AddScoped<ICourseLibraryRepository, CourseLibraryRepository>();
+        }
+
+        private static void AddQueries(this IServiceCollection services)
         {
             services.AddScoped<ICourseLibraryQueryService, CourseLibraryQueryService>();
             

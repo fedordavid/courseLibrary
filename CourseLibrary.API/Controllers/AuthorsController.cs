@@ -1,15 +1,14 @@
 ﻿using AutoMapper;
-using CourseLibrary.API.Helpers;
 using CourseLibrary.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CourseLibrary.Application.Commands;
 using CourseLibrary.Application.Entities;
 using CourseLibrary.Application.Queries;
 using CourseLibrary.Application.Queries.Authors;
+using CourseLibrary.Application.Queries.Core;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -19,25 +18,26 @@ namespace CourseLibrary.API.Controllers
     {
         private readonly ICourseLibraryRepository _courseLibraryRepository;
         private readonly IMapper _mapper;
-        private ICourseLibraryQueryService _queryService;
+        
+        private readonly QueryBus _queryBus;
+        private readonly ICourseLibraryQueryService _queryService;
 
         public AuthorsController(ICourseLibraryRepository courseLibraryRepository,
-            IMapper mapper, ICourseLibraryQueryService queryService)
+            IMapper mapper, ICourseLibraryQueryService queryService, QueryBus queryBus)
         {
             _courseLibraryRepository = courseLibraryRepository ??
                 throw new ArgumentNullException(nameof(courseLibraryRepository));
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
             _queryService = queryService;
+            _queryBus = queryBus;
         }
 
-        [HttpGet()]
+        [HttpGet]
         [HttpHead]
-        public async Task<ActionResult<IEnumerable<AuthorView>>> GetAuthors([FromQuery] GetAuthorsQuery getAuthorsQuery)
+        public async Task<ActionResult<IEnumerable<AuthorView>>> GetAuthors(string searchQuery, string mainCategory)
         {
-            throw new NotImplementedException();
-            
-            // return Ok(await _queryService.GetAuthors(getAuthorsQuery));
+            return Ok(await _queryBus.Execute<GetAuthorsQuery, AuthorView[]>(new GetAuthorsQuery(searchQuery, mainCategory)));
         }
 
         [HttpGet("{authorId}", Name ="GetAuthor")]

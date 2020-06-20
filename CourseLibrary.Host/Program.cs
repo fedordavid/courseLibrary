@@ -1,46 +1,45 @@
 using System;
-using CourseLibrary.Persistence.DbContexts;
+using System.Threading.Tasks;
+using CourseLibrary.Persistence;
+using CourseLibrary.Persistence.Extensions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+
+using HostBuilder = Microsoft.Extensions.Hosting.Host;
 
 namespace CourseLibrary.Host
 {
-    public class Program
+    public static class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
 
-            // migrate the database.  Best practice = in Main, using service scope
-            using (var scope = host.Services.CreateScope())
-            {
-                try
-                {
-                    var context = scope.ServiceProvider.GetService<CourseLibraryContext>();
-                    // for demo purposes, delete the database & migrate on startup so 
-                    // we can start with a clean slate
-                    // context.Database.EnsureDeleted();
-                    // context.Database.Migrate();
-                }
-                catch (Exception ex)
-                {
-                    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred while migrating the database.");
-                }
-            }
+            await RunMigrations(host.Services);
 
-            // run the web app
-            host.Run();
+            await host.RunAsync();
         }
 
-        
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        private static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return HostBuilder
+                .CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(UseStartup);
+
+            static void UseStartup(IWebHostBuilder b) => b.UseStartup<Startup>();
+        }
+
+        private static async Task RunMigrations(IServiceProvider rootServiceProvider)
+        {
+            using var scope = rootServiceProvider.CreateScope();
+            
+            await scope.ServiceProvider.ConfigureDatabase(async db =>
+            {
+                // db.EnsureDeleted();
+                await db.MigrateAsync();
+            });
+        }
     }
 }
