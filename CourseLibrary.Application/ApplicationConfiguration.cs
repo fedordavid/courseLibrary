@@ -27,6 +27,7 @@ namespace CourseLibrary.Application
             services.AddScoped<QueryBus, QueryBus>();
 
             services.AddScoped<IExecuteQuery<GetCoursesQuery, QueryResult<CourseView>>, GetCourses>();
+            services.AddScoped<IExecuteQuery<GetAllCoursesQuery, QueryResult<CourseView>>, GetAllCourses>();
             services.AddScoped<IExecuteQuery<GetCourseQuery, CourseView>, GetCourse>();
             services.AddScoped<IExecuteQuery<GetAuthorsQuery, AuthorView[]>, GetAuthors>();
         }
